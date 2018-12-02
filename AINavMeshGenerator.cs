@@ -4,6 +4,8 @@ using UnityEngine;
 using System.Linq;
 using Unity.Jobs;
 using Unity.Collections;
+using Sirenix.OdinInspector;
+using Sirenix.Serialization;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -48,17 +50,17 @@ public class Node
 }
 
 [ExecuteInEditMode]
-public class AINavMeshGenerator : MonoBehaviour
+public class AINavMeshGenerator : SerializedMonoBehaviour
 {
     enum Directions { Right, DownRight, Down, DownLeft, Left, UpLeft, Up, UpRight }
 
-    [SerializeField]
+    [OdinSerialize]
     private float updateInterval = 0.1f;
-    [SerializeField]
+    [OdinSerialize]
     private float pointDistributionSize = 0.5f;
-    [SerializeField]
+    [OdinSerialize]
     LayerMask destroyNodeMask;
-    [SerializeField]
+    [OdinSerialize]
     LayerMask obstacleMask;
 
     public Rect size;
@@ -445,13 +447,17 @@ public class Pathfinder
             currentCheck = currentCheck.parent;
         }
         path.Reverse();
+        if(path[0] != start)
+        {
+            return null;
+        }
         return path.ToArray();
     }
 
     private List<Vector2> ShortenPointsByVisibility(Node[] points)
     {
         //If we have small amount of points, dont bother with all this.
-        if(points.Length < 2)
+        //if(points.Length < 2)
         {
             List<Vector2> p = new List<Vector2>();
             for (int i = 0; i < points.Length; i++)
